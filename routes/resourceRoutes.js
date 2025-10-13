@@ -11,7 +11,7 @@ const {
 
 const s3 = require("../config/s3"); // S3Client instance
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage(),limits: { fileSize: 50 * 1024 * 1024 } });
 
 // Upload resource
 router.post("/upload", authMiddleware, upload.single("file"), async (req, res) => {
