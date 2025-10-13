@@ -6,7 +6,23 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/server.js",
+      "methods": ["GET", "POST", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://college-resource-sharing.vercel.app",
+        "Access-Control-Allow-Credentials": "true"
+      }
     }
-  ]
+  ],
+  "functions": {
+    "api/**.js": {
+      "maxDuration": 30,
+      "maxLambdaSize": "50mb"
+    },
+    "server.js": {
+      "maxDuration": 30,
+      "maxLambdaSize": "50mb",
+      "memory": 1024
+    }
+  }
 }
