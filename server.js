@@ -20,7 +20,7 @@ app.use(cookieParser()); // <-- added
 
 // CORS config for frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin:[ 'http://localhost:5173','https://college-resource-sharing.vercel.app'],
   credentials: true // <-- allow cookies
 }));
 
