@@ -1,0 +1,14 @@
+const mongoose = require('mongoose');
+
+const FacultySchema = new mongoose.Schema({
+  facultyId: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  branch: { type: String },
+  position: { type: String },
+  password: { type: String, required: true },
+  profilePictureUrl: { type: String },
+  createdAt: { type: Date, default: Date.now }
+});
+
+module.exports = mongoose.model('Faculty', FacultySchema);
