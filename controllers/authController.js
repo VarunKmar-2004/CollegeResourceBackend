@@ -18,7 +18,7 @@ const createAndSendToken = (res, token, user, statusCode = 200) => {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax', // allow frontend to send requests
+    sameSite: 'None', // allow frontend to send requests
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
   });
 
@@ -190,7 +190,7 @@ exports.logout = (req, res) => {
     .clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'None',
     })
     .status(200)
     .json({ message: 'Logged out successfully' });
