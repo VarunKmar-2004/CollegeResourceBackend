@@ -3,7 +3,7 @@ const express = require("express");
 const multer = require("multer");
 const { Upload } = require("@aws-sdk/lib-storage");
 const s3 = require("../config/s3");
-const { studentSignup, facultySignup,studentLogin,facultyLogin } = require("../controllers/authController");
+const { studentSignup, facultySignup,studentLogin,facultyLogin,adminLogin,logout } = require("../controllers/authController");
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -45,5 +45,7 @@ router.post("/faculty/signup", upload.single("profilePicture"), async (req, res)
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+router.post('/admin/login',adminLogin)
+router.get("/logout", logout);
 
 module.exports = router;

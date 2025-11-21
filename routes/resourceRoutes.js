@@ -7,6 +7,7 @@ const {
   getResourceById,
   getSignedDownloadUrl,
   getResources,
+  deleteResource
 } = require('../controllers/resourceController');
 
 const s3 = require("../config/s3"); // S3Client instance
@@ -64,5 +65,11 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
 router.get('/', getResources);
 router.get('/:id', getResourceById);
 router.get('/:id/download', getSignedDownloadUrl);
+router.delete('/:id', authMiddleware, (req, res, next) => {
+  if (req.userRole !== 'admin') {
+    return res.status(403).json({ message: 'Only admin can delete resources' });
+  }
+  return deleteResource(req, res, next);
+});
 
 module.exports = router;

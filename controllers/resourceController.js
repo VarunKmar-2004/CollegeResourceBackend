@@ -1,6 +1,6 @@
 require('dotenv').config();
 const Resource = require('../models/Resource');
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand,DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 const s3 = require('../config/s3'); // S3Client instance
@@ -59,4 +59,36 @@ exports.getSignedDownloadUrl = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+// Delete a resource (admin only)
+exports.deleteResource = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const resource = await Resource.findById(id);
+    if (!resource) {
+      return res.status(404).json({ message: 'Resource not found' });
+    }
+
+    // Optional: delete file from S3 if you want
+    if (resource.fileKey) {
+      try {
+        const command = new DeleteObjectCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: resource.fileKey,
+        });
+        await s3.send(command);
+      } catch (err) {
+        console.error('S3 delete error (resource still removed from DB):', err.message);
+      }
+    }
+
+    await resource.deleteOne();
+
+    res.json({ message: 'Resource deleted successfully' });
+  } catch (err) {
+    console.error('deleteResource error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 

@@ -6,6 +6,10 @@ const validator = require('validator');
 const Student = require('../models/Student');
 const Faculty = require('../models/Faculty');
 
+// ✅ Admin fixed credentials
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
 // helper to sign JWT token
 const signToken = (userId, role) => {
   return jwt.sign({ id: userId, role }, process.env.JWT_SECRET, {
@@ -186,12 +190,57 @@ exports.facultyLogin = async (req, res) => {
 /* ================= LOGOUT ================= */
 
 exports.logout = (req, res) => {
-  res
-    .clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'None',
-    })
-    .status(200)
-    .json({ message: 'Logged out successfully' });
+  const cookieOptions = {
+    httpOnly: true,
+  };
+
+  // 🟢 Localhost (development)
+  if (process.env.NODE_ENV !== "production") {
+    cookieOptions.sameSite = "Lax";
+    cookieOptions.secure = false;
+  }
+
+  // 🔵 Production (Vercel)
+  else {
+    cookieOptions.sameSite = "None";
+    cookieOptions.secure = true;
+  }
+
+  // overwrite + expire cookie properly
+  cookieOptions.expires = new Date(0);
+
+  res.cookie("token", "", cookieOptions);
+
+  return res.status(200).json({ message: "Logged out successfully" });
 };
+
+
+// ================= ADMIN LOGIN =================
+exports.adminLogin = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Missing credentials' });
+    }
+
+    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+
+    // sign admin token (id can be any fixed string)
+    const token = signToken('admin', 'admin');
+
+    // ⚠️ this uses your existing helper in this file
+    createAndSendToken(res, token, {
+      id: 'admin',
+      name: 'Portal Admin',
+      email: process.env.ADMIN_EMAIL || 'admin@college.com',
+      role: 'admin',
+    });
+  } catch (err) {
+    console.error('adminLogin error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+

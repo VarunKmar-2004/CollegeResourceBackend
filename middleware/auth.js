@@ -16,7 +16,14 @@ const authMiddleware = async (req, res, next) => {
       user = await Student.findById(id).select('-password');
     } else if (role === 'faculty') {
       user = await Faculty.findById(id).select('-password');
-    }
+    }else if (role === 'admin') {
+  user = {
+    _id: "admin",          // 🔥 fixed ID string, no DB needed
+    name: "Portal Admin",
+    email: process.env.ADMIN_EMAIL || "admin@college.com",
+    role: "admin",
+  };
+}
 
     if (!user) return res.status(401).json({ message: 'User not found' });
 
